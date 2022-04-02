@@ -15,3 +15,4 @@ Country-GPD-per-capita : ???
 export.csv : ???
 
 PDB_LS_02* : https://stats.oecd.org/index.aspx?DataSetCode=PDB_LV
+  (NOTE: this data set is a little lacking for our purpose)
