@@ -33,6 +33,8 @@ webpage <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_populat
 pop <- html_table(webpage, fill = TRUE)
 ```
 
+Note: A lot of the N/a's in the wiki webpage are smaller Islands nations/ territories. I would be a little uncomfortable with imputing this data since it is Informed Missing. I found that we could find some of those missing values
+
 ```{r}
 country_pop <- pop[[2]]
 
@@ -54,24 +56,26 @@ country_pop <- country_pop %>%
 ```
 
 ```{r}
-country_gdp <- read_csv("Data Raw/imf-dm-export-20220328.csv")
+country_gdp <- read_csv("Data Raw/Country-GPD-per-capita.csv")
 country_gdp$`GDP per capita, current prices (U.S. dollars per capita)`
 country_gdp <- country_gdp %>% 
                  select(c("GDP per capita~", "2010"))
 
 #alt way (I am not sure what libary you were using so I had to write my own code)
-country_gdp <- country_gdp %>% transmute(country = `GDP per capita, current prices (U.S. dollars per capita)`,
+country_gdp_capita <- country_gdp %>% transmute(Entity = `GDP per capita, current prices
+ (U.S. dollars per capita)`,
  gdp_per_capita = `2010`)
 
 ```
+
+
 ```{r}
 gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
 
 gdp_country <- gdp_country %>% 
   select(`Country Name`, `2010`) %>% 
   rename("Entity" = `Country Name`,
-         "GPD (USD 2015)" = `2010`)
-
+         "GPD (in USD 2015)" = `2010`)
 
 ```
 
@@ -80,7 +84,8 @@ tab1 <- full_join(waste_total, country_pop, by = "Entity")
 tab2 <- full_join(tab1, waste_per_cap, by = "Entity")
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = "Entity")
 tab4 <- full_join(tab3, waste_inadequate_manage, by = "Entity")
-tab5 <- full_join(tab4, gdp_country, by = "Entity")
+tab5 <- left_join(tab4, gdp_country, by = "Entity")
+tab6 <- left_join(tab5, country_gdp_capita, by = "Entity")
 ```
 
 
