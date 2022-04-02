@@ -85,8 +85,11 @@ tab2 <- full_join(tab1, waste_per_cap, by = "Entity")
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = "Entity")
 tab4 <- full_join(tab3, waste_inadequate_manage, by = "Entity")
 tab5 <- left_join(tab4, gdp_country, by = "Entity")
-tab6 <- left_join(tab5, country_gdp_capita, by = "Entity")
+#tab6 <- left_join(tab5, country_gdp_capita, by = "Entity") not sure what year is the USD in.
 ```
 
+```{r}
+write_csv(tab5, "Data Clean/master_table.csv")
 
+s```
 
