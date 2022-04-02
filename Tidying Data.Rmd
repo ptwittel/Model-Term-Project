@@ -12,17 +12,17 @@ library(rvest)
 ```
 
 ```{r}
-waste_total <- read_csv("final prj folder/plastic-waste-generation-total.csv")
+waste_total <- read_csv("Data Raw/plastic-waste-generation-total.csv")
 
-waste_per_cap <- read_csv("final prj folder/plastic-waste-per-capita.csv")
+waste_per_cap <- read_csv("Data Raw/plastic-waste-per-capita.csv")
 waste_per_cap <-  waste_per_cap %>% 
                     select(c("Entity", "Per capita plastic waste (kg/person/day)"))
 
-waste_totgbl_mismanage <- read_csv("final prj folder/mismanaged-waste-global-total.csv")
+waste_totgbl_mismanage <- read_csv("Data Raw/mismanaged-waste-global-total.csv")
 waste_totgbl_mismanage <-  waste_totgbl_mismanage %>% 
                              select(c("Entity", "Mismanaged waste (% global total)"))
 
-waste_inadequate_manage <- read_csv("final prj folder/inadequately-managed-plastic.csv")
+waste_inadequate_manage <- read_csv("Data Raw/inadequately-managed-plastic.csv")
 waste_inadequate_manage <-  waste_inadequate_manage %>% 
                               select(c("Entity", "Share of plastic inadequately managed"))
 ```
@@ -54,19 +54,33 @@ country_pop <- country_pop %>%
 ```
 
 ```{r}
-country_gdp <- read_csv("final prj folder/imf-dm-export-20220328.csv")
-country_gdp$`GDP per capita, current prices
-  (U.S. dollars per capita)`
+country_gdp <- read_csv("Data Raw/imf-dm-export-20220328.csv")
+country_gdp$`GDP per capita, current prices (U.S. dollars per capita)`
 country_gdp <- country_gdp %>% 
                  select(c("GDP per capita~", "2010"))
-```
 
+#alt way (I am not sure what libary you were using so I had to write my own code)
+country_gdp <- country_gdp %>% transmute(country = `GDP per capita, current prices (U.S. dollars per capita)`,
+ gdp_per_capita = `2010`)
+
+```
+```{r}
+gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
+
+gdp_country <- gdp_country %>% 
+  select(`Country Name`, `2010`) %>% 
+  rename("Entity" = `Country Name`,
+         "GPD (USD 2015)" = `2010`)
+
+
+```
 
 ```{r}
 tab1 <- full_join(waste_total, country_pop, by = "Entity")
 tab2 <- full_join(tab1, waste_per_cap, by = "Entity")
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = "Entity")
 tab4 <- full_join(tab3, waste_inadequate_manage, by = "Entity")
+tab5 <- full_join(tab4, gdp_country, by = "Entity")
 ```
 
 
