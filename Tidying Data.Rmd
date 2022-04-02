@@ -16,15 +16,15 @@ waste_total <- read_csv("Data Raw/plastic-waste-generation-total.csv")
 
 waste_per_cap <- read_csv("Data Raw/plastic-waste-per-capita.csv")
 waste_per_cap <-  waste_per_cap %>% 
-                    select(c("Entity", "Per capita plastic waste (kg/person/day)"))
+                    select(c("Entity", "Per capita plastic waste (kg/person/day)", "Code"))
 
 waste_totgbl_mismanage <- read_csv("Data Raw/mismanaged-waste-global-total.csv")
 waste_totgbl_mismanage <-  waste_totgbl_mismanage %>% 
-                             select(c("Entity", "Mismanaged waste (% global total)"))
+                             select(c("Entity", "Mismanaged waste (% global total)", "Code"))
 
 waste_inadequate_manage <- read_csv("Data Raw/inadequately-managed-plastic.csv")
 waste_inadequate_manage <-  waste_inadequate_manage %>% 
-                              select(c("Entity", "Share of plastic inadequately managed"))
+                            select(c("Entity", "Share of plastic inadequately managed","Code"))
 ```
 
 ```{r}
@@ -58,7 +58,7 @@ country_pop <- country_pop %>%
 ```{r}
 country_gdp <- read_csv("Data Raw/Country-GPD-per-capita.csv")
 country_gdp$`GDP per capita, current prices (U.S. dollars per capita)`
-country_gdp <- country_gdp %>% 
+country_gdp <- country_gdp %>%
                  select(c("GDP per capita~", "2010"))
 
 #alt way (I am not sure what libary you were using so I had to write my own code)
@@ -73,18 +73,19 @@ country_gdp_capita <- country_gdp %>% transmute(Entity = `GDP per capita, curren
 gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
 
 gdp_country <- gdp_country %>% 
-  select(`Country Name`, `2010`) %>% 
   rename("Entity" = `Country Name`,
-         "GPD (in USD 2015)" = `2010`)
+         "GPD (in USD 2015)" = `2010`,
+         "Code" = `Country Code`) %>% 
+  select(Entity, `GPD (in USD 2015)`, Code)
 
 ```
 
 ```{r}
 tab1 <- full_join(waste_total, country_pop, by = "Entity")
-tab2 <- full_join(tab1, waste_per_cap, by = "Entity")
-tab3 <- full_join(tab2, waste_totgbl_mismanage, by = "Entity")
-tab4 <- full_join(tab3, waste_inadequate_manage, by = "Entity")
-tab5 <- left_join(tab4, gdp_country, by = "Entity")
+tab2 <- full_join(tab1, waste_per_cap, by = c("Entity", "Code"))
+tab3 <- full_join(tab2, waste_totgbl_mismanage, by = c("Entity", "Code"))
+tab4 <- full_join(tab3, waste_inadequate_manage, by = c("Entity", "Code"))
+tab5 <- left_join(tab4, gdp_country, by = c("Entity","Code"))
 #tab6 <- left_join(tab5, country_gdp_capita, by = "Entity") not sure what year is the USD in.
 ```
 
@@ -105,7 +106,7 @@ fuel_sub <- fuel_sub %>%
   select(Entity, `Fossil-Fuel subsities as proportion of total GDP`, Code)
 
 
-tab7 <- left_join(tab5, fuel_sub, by = "Entity")
+tab7 <- left_join(tab5, fuel_sub, by = c("Entity", "Code"))
 
 write_csv(tab7, "Data Clean/master_Table_Fuel.csv")
 
