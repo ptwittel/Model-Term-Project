@@ -1,0 +1,56 @@
+---
+title: "EDA"
+author: "Phillip Wittel"
+date: "4/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+masterTable <- read_csv("Data Clean/master_table.csv")
+
+MT_gdpPop <- masterTable %>% 
+  mutate("Per capita GDP (in USD 2015)" = masterTable$`GPD (in USD 2015)`/ Population_2010)
+
+MT_gdpPop %>% filter(is.na(Population_2010) == 0) %>% 
+  pull(Entity) %>% 
+  str_detect("Island") %>% 
+  sum()
+
+MT_gdpPop %>% filter(is.na(Population_2010) == 1) %>% 
+  pull(Entity) %>% 
+  str_detect("Island") %>% 
+  sum()
+
+```
+There are 12 Enities that have missing values in population with the word "Island", compared to 2 Entities that do to have values for population with the word "island"
+
+```{r}
+
+MT_gdpPop %>% filter(MT_gdpPop %>% pull(Entity) %>% str_detect("Congo"))
+
+MT_gdpPop %>% filter(MT_gdpPop %>% pull(Entity) %>% str_ends("union"))
+
+```
+We have duplicates of the Democratic Republic of the Congo, and also a third. I am okay with remove this group of data points as a.) there was a civil war in DRC and b.) we have a lot of missing data points for these nations; a lot of imputation is going to be required for these nations. 
+We also have a duplicate of Reunion, since it uses an acsent on one. 
+
+
+```{r}
+
+plot(y = MT_gdpPop %>% pull(`Plastic waste generation (tonnes, total)`) %>% log10(), 
+     x = MT_gdpPop %>% pull(Population_2010) %>% log10)
+
+plot(y = MT_gdpPop %>% pull(`Plastic waste generation (tonnes, total)`) %>% log10(), 
+     x = MT_gdpPop %>% pull(`GPD (in USD 2015)`) %>% log10)
+
+plot(y = MT_gdpPop %>% pull(`Plastic waste generation (tonnes, total)`) %>% log10(), 
+     x = MT_gdpPop %>% pull(`Per capita GDP (in USD 2015)`) %>% log10)
+
+plot(y = MT_gdpPop %>% pull(`Per capita plastic waste (kg/person/day)`) %>% log10(), 
+     x = MT_gdpPop %>% pull(`Per capita GDP (in USD 2015)`) %>% log10())
+
+```
