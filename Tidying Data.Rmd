@@ -100,7 +100,7 @@ Fuel Subsidies
 fuel_sub_raw <- read_csv("Data Raw/fossil-fuel-subsidies-gdp.csv") 
 
 fuel_sub <- fuel_sub_raw %>% 
-  mutate('Fossil-Fuel subsities as proportion of total GDP' = fuel_sub$`12.c.1 - Fossil-fuel subsidies (consumption and production) as a proportion of total GDP (%) - ER_FFS_CMPT_GDP`) %>% 
+  mutate('Fossil-Fuel subsities as proportion of total GDP' = fuel_sub_raw$`12.c.1 - Fossil-fuel subsidies (consumption and production) as a proportion of total GDP (%) - ER_FFS_CMPT_GDP`) %>% 
   filter(Year == 2015) %>% 
   filter(!is.na(Code)) %>% 
   filter(Entity != c("World")) %>% 
