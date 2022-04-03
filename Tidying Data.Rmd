@@ -97,16 +97,20 @@ write_csv(tab5, "Data Clean/master_table.csv")
 
 Fuel Subsidies
 ```{r}
-fuel_sub <- read_csv("Data Raw/fossil-fuel-subsidies-gdp.csv") 
+fuel_sub_raw <- read_csv("Data Raw/fossil-fuel-subsidies-gdp.csv") 
 
-fuel_sub <- fuel_sub %>% 
+fuel_sub <- fuel_sub_raw %>% 
   mutate('Fossil-Fuel subsities as proportion of total GDP' = fuel_sub$`12.c.1 - Fossil-fuel subsidies (consumption and production) as a proportion of total GDP (%) - ER_FFS_CMPT_GDP`) %>% 
   filter(Year == 2015) %>% 
   filter(!is.na(Code)) %>% 
-  select(Entity, `Fossil-Fuel subsities as proportion of total GDP`, Code)
+  filter(Entity != c("World")) %>% 
+  select(Entity, `Fossil-Fuel subsities as proportion of total GDP`)
 
 
-tab7 <- left_join(tab5, fuel_sub, by = c("Entity", "Code"))
+#fuel_sub_codes <- fuel_sub_raw%>% select(Entity, Code, Year) %>% filter(Year == 2015) %>% select(!Year)
+
+tab7 <- left_join(tab5, fuel_sub)
+#tab8 <- left_join(tab7, fuel_sub_codes, by = c("Entity", "Code" = "Code"))
 
 write_csv(tab7, "Data Clean/master_Table_Fuel.csv")
 
