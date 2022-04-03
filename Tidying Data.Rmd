@@ -57,9 +57,9 @@ country_pop <- country_pop %>%
 
 ```{r}
 country_gdp <- read_csv("Data Raw/Country-GPD-per-capita.csv")
-country_gdp$`GDP per capita, current prices (U.S. dollars per capita)`
-country_gdp <- country_gdp %>%
-                 select(c("GDP per capita~", "2010"))
+# country_gdp$`GDP per capita, current prices (U.S. dollars per capita)`
+# country_gdp <- country_gdp %>%
+#                  select(c("GDP per capita~", "2010"))
 
 #alt way (I am not sure what libary you were using so I had to write my own code)
 country_gdp_capita <- country_gdp %>% transmute(Entity = `GDP per capita, current prices
@@ -85,7 +85,7 @@ tab1 <- full_join(waste_total, country_pop, by = "Entity")
 tab2 <- full_join(tab1, waste_per_cap, by = c("Entity", "Code"))
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = c("Entity", "Code"))
 tab4 <- full_join(tab3, waste_inadequate_manage, by = c("Entity", "Code"))
-tab5 <- left_join(tab4, gdp_country, by = c("Entity","Code"))
+tab5 <- left_join(tab4, gdp_country, by = c("Entity", "Code"))
 #tab6 <- left_join(tab5, country_gdp_capita, by = "Entity") not sure what year is the USD in.
 ```
 
