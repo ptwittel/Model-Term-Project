@@ -74,9 +74,9 @@ gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv")
 
 gdp_country <- gdp_country %>% 
   rename("Entity" = `Country Name`,
-         "GPD (in USD 2015)" = `2010`,
+         "GDP (in USD 2015)" = `2010`,
          "Code" = `Country Code`) %>% 
-  select(Entity, `GPD (in USD 2015)`)
+  select(Entity, `GDP (in USD 2015)`)
 
 ```
 
