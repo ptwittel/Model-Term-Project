@@ -27,46 +27,31 @@ waste_inadequate_manage <-  waste_inadequate_manage %>%
                             select(c("Entity", "Share of plastic inadequately managed"))
 ```
 
-```{r}
-webpage <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_population_in_2010")
+*Plastic data from Our World in Data
 
-pop <- html_table(webpage, fill = TRUE)
+```{r}
+pop <- read_csv("Data Raw/export.csv")
+pop <- pop %>% 
+        select(c("Country/Area Name", "Population", "Annual Growth Rate %", "Area (sq km)", "Density (per sq km)"))
 ```
 
 Note: A lot of the N/a's in the wiki webpage are smaller Islands nations/ territories. I would be a little uncomfortable with imputing this data since it is Informed Missing. I found that we could find some of those missing values
 
-```{r}
-country_pop <- pop[[2]]
+*changed the population since Wikipedia is not a reliable source. Data from Census Bureau
 
-names(country_pop) <- c("Rank", "Entity",
-                      "Population_2010", "Chng_2005",
-                      "Area_km2", "Popdens")
 
-country_pop <- country_pop %>% 
-  filter(Entity != "World")
-
-country_pop$Population_2010 <- 
-  as.numeric(str_remove_all(country_pop$Population_2010, ","))
-
-country_pop$Area_km2 <- 
-  as.numeric(str_remove_all(country_pop$Area_km2, ","))
-
-country_pop <- country_pop %>% 
-                 select(c("Entity", "Population_2010", "Area_km2"))
-```
 
 ```{r}
 country_gdp <- read_csv("Data Raw/Country-GPD-per-capita.csv")
-# country_gdp$`GDP per capita, current prices (U.S. dollars per capita)`
-# country_gdp <- country_gdp %>%
-#                  select(c("GDP per capita~", "2010"))
 
-#alt way (I am not sure what libary you were using so I had to write my own code)
 country_gdp_capita <- country_gdp %>% transmute(Entity = `GDP per capita, current prices
  (U.S. dollars per capita)`,
  gdp_per_capita = `2010`)
 
+gdp_per_cap <- country_gdp_capita[c(2:197),] #to ensure we have just the countries and not regions
 ```
+
+*"GDP per capita, current prices (U.S. dollars per capita)": Data from IMF
 
 
 ```{r}
