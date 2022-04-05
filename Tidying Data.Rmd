@@ -12,7 +12,7 @@ library(rvest)
 ```
 
 
-*states vs countries. 
+*states vs countries. We need to define what a country is,
 
 ```{r}
 waste_total <- read_csv("Data Raw/plastic-waste-generation-total.csv")
@@ -137,6 +137,21 @@ tab7 <- tab6 %>%
 * country code: COG -> Republic of Congo; COD -> Democratic Republic of Congo
 *Note: South Sudan and Sudan were one country until they split in 2011. Issue because data is 2010. Possibly take out the South Sudan row
 *Not sure what to do about west bank and west bank and gaza
+
+
+```{r}
+# NA EDA: Number of observations: 244
+sum(is.na(tab7$`Plastic waste generation (tonnes, total)`)) #Number of NAs: 76; proportion missing: 0.3114754
+sum(is.na(tab7$Population))                                 #Number of NAs: 17; proportion missing: 0.06967213
+sum(is.na(tab7$`Annual Growth Rate %`))                     #Number of NAs: 18; proportion missing: 0.07377049 #US missing 
+sum(is.na(tab7$`Area (sq km)`))                             #Number of NAs: 17; proportion missing: 0.06967213
+sum(is.na(tab7$`Density (per sq km)`))                      #Number of NAs: 17; proportion missing: 0.06967213
+sum(is.na(tab7$`Per capita plastic waste (kg/person/day)`)) #Number of NAs: 58; proportion missing: 0.2377049
+sum(is.na(tab7$`Mismanaged waste (% global total)`))        #Number of NAs: 58; proportion missing: 0.2377049
+sum(is.na(tab7$`Share of plastic inadequately managed`))    #Number of NAs: 58; proportion missing: 0.2377049
+sum(is.na(tab7$gdp_per_capita))                             #Number of NAs: 48; proportion missing: 0.1967213
+```
+
 
 
 
