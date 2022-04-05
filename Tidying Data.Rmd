@@ -131,10 +131,6 @@ tab7 <- tab6 %>%
           group_by(Entity) %>% 
           fill(everything(), .direction = "downup") %>% 
           slice(n=1)
-
-#df2 <- df %>%
-#  group_by(A) %>%
-#  fill(everything(), .direction = "downup")
 ```
 
 * Congo Brazzaville (Republic of Congo) and Congo Kinshasa (Democratic Republic of Congo)
