@@ -11,6 +11,9 @@ library(tidyverse)
 library(rvest)
 ```
 
+
+*states vs countries. 
+
 ```{r}
 waste_total <- read_csv("Data Raw/plastic-waste-generation-total.csv")
 
@@ -53,34 +56,46 @@ gdp_per_cap <- country_gdp_capita[c(2:197),] #to ensure we have just the countri
 
 *"GDP per capita, current prices (U.S. dollars per capita)": Data from IMF
 
+"Gross domestic product is the most commonly used single measure of a country's overall economic activity. It represents the total value at current prices of final goods and services produced within a country during a specified time period divided by the average population for the same one year.
+
+Source: World Economic Outlook (October 2021)" https://www.imf.org/external/datamapper/NGDPDPC@WEO/OEMDC/ADVEC/WEOWORLD 
+
 
 ```{r}
-gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
+# This might be a pain to clean up since the data includes a lot of regions but we are concentrating on individual countries.
+#gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
 
-gdp_country <- gdp_country %>% 
-  rename("Entity" = `Country Name`,
-         "GPD (in USD 2015)" = `2010`,
-         "Code" = `Country Code`) %>% 
-  select(Entity, `GPD (in USD 2015)`)
+#gdp_country <- gdp_country %>% 
+#  rename("Entity" = `Country Name`,
+#         "GPD (in USD 2015)" = `2010`,
+#         "Code" = `Country Code`) %>% 
+#  select(Entity, `GPD (in USD 2015)`)
 
+
+## Alternatively, we can calculate GDP using population and gdp_per capita
 ```
 
 ```{r}
-tab1 <- full_join(waste_total, country_pop, by = "Entity")
+tab1 <- full_join(waste_total, pop, by = c("Entity" = "Country/Area Name"))
 tab2 <- full_join(tab1, waste_per_cap, by = c("Entity"))
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = c("Entity"))
 tab4 <- full_join(tab3, waste_inadequate_manage, by = c("Entity"))
-tab5 <- left_join(tab4, gdp_country, by = c("Entity"))
+tab5 <- full_join(tab4, gdp_per_cap, by = c("Entity"))
 #tab6 <- left_join(tab5, country_gdp_capita, by = "Entity") not sure what year is the USD in.
 ```
 
 ```{r}
-write_csv(tab5, "Data Clean/master_table.csv")
-
+#write_csv(tab5, "Data Clean/master_table.csv")
+write_csv(tab5, "Data Clean/data_1.csv")
 ```
 
+*need to fix: some countries are spelt differently in different sources leading to duplicate rows that have NAs.
+*very difficult to find data on total plastic produced by country in 2010.
 
-Fuel Subsidies
+
+Fuel Subsidies  
+
+*I am still not sure if I am sold on using 2015 data since the rest of our data is 2010. What happens if we have countries that actually didn't have subsidies available in 2010? It would not have any effect on the plastic waste generated 
 ```{r}
 fuel_sub_raw <- read_csv("Data Raw/fossil-fuel-subsidies-gdp.csv") 
 
