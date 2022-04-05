@@ -93,6 +93,57 @@ write_csv(tab5, "Data Clean/data_1.csv")
 *very difficult to find data on total plastic produced by country in 2010.
 
 
+
+```{r}
+tab6 <- tab5
+# Tidying up Entity names
+tab6$Entity <- str_replace(tab6$Entity, ".*Bahamas.*", "Bahamas")
+tab6$Entity <- str_replace(tab6$Entity, ".*Brunei.*", "Brunei")
+tab6$Entity <- str_replace(tab6$Entity, "China, People's Republic of", "China")
+tab6$Entity <- str_replace(tab6$Entity, "^Congo$", "Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo \\(Brazzaville\\)", "Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo, Republic of", "Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo \\(Kinshasa\\)", "Democratic Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo, Dem. Rep. of the", "Democratic Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, ".*C[ôo]te.*", "Cote d'Ivoire")
+tab6$Entity <- str_replace(tab6$Entity, ".*Cura[cç]ao.*", "Curacao")
+tab6$Entity <- str_replace(tab6$Entity, ".*Fa.?roe.*", "Faeroe Islands")
+tab6$Entity <- str_replace(tab6$Entity, ".*Gambia.*", "The Gambia")
+tab6$Entity <- str_replace(tab6$Entity, ".*Hong Kong.*", "Hong Kong")
+tab6$Entity <- str_replace(tab6$Entity, "Korea, North", "North Korea")
+tab6$Entity <- str_replace(tab6$Entity, "Korea, South", "South Korea")
+tab6$Entity <- str_replace(tab6$Entity, "Korea, Republic of", "South Korea")
+tab6$Entity <- str_replace(tab6$Entity, ".*Kyrgyz.*", "Kyrgyzstan")
+tab6$Entity <- str_replace(tab6$Entity, ".*Lao.*", "Laos")
+tab6$Entity <- str_replace(tab6$Entity, ".*Maca.*", "Macao")
+tab6$Entity <- str_replace(tab6$Entity, ".*Micronesia.*", "Micronesia")
+tab6$Entity <- str_replace(tab6$Entity, ".*Russia.*", "Russia")
+tab6$Entity <- str_replace(tab6$Entity, ".*Saint Helena.*", "Saint Helena")
+tab6$Entity <- str_replace(tab6$Entity, "São Tomé and Príncipe", "Sao Tome and Principe")
+tab6$Entity <- str_replace(tab6$Entity, ".*Sint Maarten.*", "Sint Maarten")
+tab6$Entity <- str_replace(tab6$Entity, ".*Slovak.*", "Slovakia")
+tab6$Entity <- str_replace(tab6$Entity, ".*South Sudan.*", "South Sudan")  # South Sudan may need to be removed
+tab6$Entity <- str_replace(tab6$Entity, ".*Taiwan.*", "Taiwan")
+tab6$Entity <- str_replace(tab6$Entity, "Virgin Islands, British", "British Virgin Islands")
+
+
+tab7 <- tab6 %>% 
+          group_by(Entity) %>% 
+          fill(everything(), .direction = "downup") %>% 
+          slice(n=1)
+
+#df2 <- df %>%
+#  group_by(A) %>%
+#  fill(everything(), .direction = "downup")
+```
+
+* Congo Brazzaville (Republic of Congo) and Congo Kinshasa (Democratic Republic of Congo)
+* country code: COG -> Republic of Congo; COD -> Democratic Republic of Congo
+*Note: South Sudan and Sudan were one country until they split in 2011. Issue because data is 2010. Possibly take out the South Sudan row
+*Not sure what to do about west bank and west bank and gaza
+
+
+
 Fuel Subsidies  
 
 *I am still not sure if I am sold on using 2015 data since the rest of our data is 2010. What happens if we have countries that actually didn't have subsidies available in 2010? It would not have any effect on the plastic waste generated 
