@@ -11,6 +11,9 @@ library(tidyverse)
 library(rvest)
 ```
 
+
+*states vs countries. 
+
 ```{r}
 waste_total <- read_csv("Data Raw/plastic-waste-generation-total.csv")
 
@@ -27,75 +30,129 @@ waste_inadequate_manage <-  waste_inadequate_manage %>%
                             select(c("Entity", "Share of plastic inadequately managed"))
 ```
 
-```{r}
-webpage <- read_html("https://en.wikipedia.org/wiki/List_of_countries_by_population_in_2010")
+*Plastic data from Our World in Data
 
-pop <- html_table(webpage, fill = TRUE)
+```{r}
+pop <- read_csv("Data Raw/export.csv")
+pop <- pop %>% 
+        select(c("Country/Area Name", "Population", "Annual Growth Rate %", "Area (sq km)", "Density (per sq km)"))
 ```
 
 Note: A lot of the N/a's in the wiki webpage are smaller Islands nations/ territories. I would be a little uncomfortable with imputing this data since it is Informed Missing. I found that we could find some of those missing values
 
-```{r}
-country_pop <- pop[[2]]
+*changed the population since Wikipedia is not a reliable source. Data from Census Bureau
 
-names(country_pop) <- c("Rank", "Entity",
-                      "Population_2010", "Chng_2005",
-                      "Area_km2", "Popdens")
 
-country_pop <- country_pop %>% 
-  filter(Entity != "World")
-
-country_pop$Population_2010 <- 
-  as.numeric(str_remove_all(country_pop$Population_2010, ","))
-
-country_pop$Area_km2 <- 
-  as.numeric(str_remove_all(country_pop$Area_km2, ","))
-
-country_pop <- country_pop %>% 
-                 select(c("Entity", "Population_2010", "Area_km2"))
-```
 
 ```{r}
 country_gdp <- read_csv("Data Raw/Country-GPD-per-capita.csv")
-# country_gdp$`GDP per capita, current prices (U.S. dollars per capita)`
-# country_gdp <- country_gdp %>%
-#                  select(c("GDP per capita~", "2010"))
 
-#alt way (I am not sure what libary you were using so I had to write my own code)
 country_gdp_capita <- country_gdp %>% transmute(Entity = `GDP per capita, current prices
  (U.S. dollars per capita)`,
  gdp_per_capita = `2010`)
 
+gdp_per_cap <- country_gdp_capita[c(2:197),] #to ensure we have just the countries and not regions
 ```
+
+*"GDP per capita, current prices (U.S. dollars per capita)": Data from IMF
+
+"Gross domestic product is the most commonly used single measure of a country's overall economic activity. It represents the total value at current prices of final goods and services produced within a country during a specified time period divided by the average population for the same one year.
+
+Source: World Economic Outlook (October 2021)" https://www.imf.org/external/datamapper/NGDPDPC@WEO/OEMDC/ADVEC/WEOWORLD 
 
 
 ```{r}
-gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
+# This might be a pain to clean up since the data includes a lot of regions but we are concentrating on individual countries.
+#gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
 
-gdp_country <- gdp_country %>% 
-  rename("Entity" = `Country Name`,
-         "GDP (in USD 2015)" = `2010`,
-         "Code" = `Country Code`) %>% 
-  select(Entity, `GDP (in USD 2015)`)
+#gdp_country <- gdp_country %>% 
+#  rename("Entity" = `Country Name`,
+#         "GPD (in USD 2015)" = `2010`,
+#         "Code" = `Country Code`) %>% 
+#  select(Entity, `GPD (in USD 2015)`)
 
+# 
+# gdp_country <- gdp_country %>% 
+#   rename("Entity" = `Country Name`,
+#          "GDP (in USD 2015)" = `2010`,
+#          "Code" = `Country Code`) %>% 
+#   select(Entity, `GDP (in USD 2015)`)
+
+## Alternatively, we can calculate GDP using population and gdp_per capita
 ```
 
 ```{r}
-tab1 <- full_join(waste_total, country_pop, by = "Entity")
+tab1 <- full_join(waste_total, pop, by = c("Entity" = "Country/Area Name"))
 tab2 <- full_join(tab1, waste_per_cap, by = c("Entity"))
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = c("Entity"))
 tab4 <- full_join(tab3, waste_inadequate_manage, by = c("Entity"))
-tab5 <- left_join(tab4, gdp_country, by = c("Entity"))
+tab5 <- full_join(tab4, gdp_per_cap, by = c("Entity"))
 #tab6 <- left_join(tab5, country_gdp_capita, by = "Entity") not sure what year is the USD in.
 ```
 
 ```{r}
-write_csv(tab5, "Data Clean/master_table.csv")
-
+#write_csv(tab5, "Data Clean/master_table.csv")
+write_csv(tab5, "Data Clean/data_1.csv")
 ```
 
+*need to fix: some countries are spelt differently in different sources leading to duplicate rows that have NAs.
+*very difficult to find data on total plastic produced by country in 2010.
 
-Fuel Subsidies
++ I think that we will have to rely on imputation for that. I doubt that we will be about to find good records on the missing data points. Though, I think that could be alright; I found a paper that talks about that effectiveness of imputation with different proportion of missing data. We have only about 30% missing, but the paper suggested that up to 40% is still effective. (This is with the MASSIVE caviot that we have MAR and not MI which I am not convince we have)
+
+
+
+```{r}
+tab6 <- tab5
+# Tidying up Entity names
+tab6$Entity <- str_replace(tab6$Entity, ".*Bahamas.*", "Bahamas")
+tab6$Entity <- str_replace(tab6$Entity, ".*Brunei.*", "Brunei")
+tab6$Entity <- str_replace(tab6$Entity, "China, People's Republic of", "China")
+tab6$Entity <- str_replace(tab6$Entity, "^Congo$", "Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo \\(Brazzaville\\)", "Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo, Republic of", "Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo \\(Kinshasa\\)", "Democratic Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, "Congo, Dem. Rep. of the", "Democratic Republic of Congo")
+tab6$Entity <- str_replace(tab6$Entity, ".*C[ôo]te.*", "Cote d'Ivoire")
+tab6$Entity <- str_replace(tab6$Entity, ".*Cura[cç]ao.*", "Curacao")
+tab6$Entity <- str_replace(tab6$Entity, ".*Fa.?roe.*", "Faeroe Islands")
+tab6$Entity <- str_replace(tab6$Entity, ".*Gambia.*", "The Gambia")
+tab6$Entity <- str_replace(tab6$Entity, ".*Hong Kong.*", "Hong Kong")
+tab6$Entity <- str_replace(tab6$Entity, "Korea, North", "North Korea")
+tab6$Entity <- str_replace(tab6$Entity, "Korea, South", "South Korea")
+tab6$Entity <- str_replace(tab6$Entity, "Korea, Republic of", "South Korea")
+tab6$Entity <- str_replace(tab6$Entity, ".*Kyrgyz.*", "Kyrgyzstan")
+tab6$Entity <- str_replace(tab6$Entity, ".*Lao.*", "Laos")
+tab6$Entity <- str_replace(tab6$Entity, ".*Maca.*", "Macao")
+tab6$Entity <- str_replace(tab6$Entity, ".*Micronesia.*", "Micronesia")
+tab6$Entity <- str_replace(tab6$Entity, ".*Russia.*", "Russia")
+tab6$Entity <- str_replace(tab6$Entity, ".*Saint Helena.*", "Saint Helena")
+tab6$Entity <- str_replace(tab6$Entity, "São Tomé and Príncipe", "Sao Tome and Principe")
+tab6$Entity <- str_replace(tab6$Entity, ".*Sint Maarten.*", "Sint Maarten")
+tab6$Entity <- str_replace(tab6$Entity, ".*Slovak.*", "Slovakia")
+tab6$Entity <- str_replace(tab6$Entity, ".*South Sudan.*", "South Sudan")  # South Sudan may need to be removed
+tab6$Entity <- str_replace(tab6$Entity, ".*Taiwan.*", "Taiwan")
+tab6$Entity <- str_replace(tab6$Entity, "Virgin Islands, British", "British Virgin Islands")
+
+
+tab7 <- tab6 %>% 
+          group_by(Entity) %>% 
+          fill(everything(), .direction = "downup") %>% 
+          slice(n=1)
+```
+
+* Congo Brazzaville (Republic of Congo) and Congo Kinshasa (Democratic Republic of Congo)
+* country code: COG -> Republic of Congo; COD -> Democratic Republic of Congo
+*Note: South Sudan and Sudan were one country until they split in 2011. Issue because data is 2010. Possibly take out the South Sudan row
+*Not sure what to do about west bank and west bank and gaza
+
++I think we have legitimate reason to remove nations that were in political/social turmoil at or around that time. We don't have a means of accounting for the effect of plastic waste in the mist of a conflict. We would have to look at historical data to account for that effect which would be out of the scope of this report. 
+
+Fuel Subsidies  
+
+*I am still not sure if I am sold on using 2015 data since the rest of our data is 2010. What happens if we have countries that actually didn't have subsidies available in 2010? It would not have any effect on the plastic waste generated 
+
++You are very right about that. I do not think that this should be apart of the main study, but I do think that there is value in studying this as a secondary thing that we might be about to comment on. though I recognize that to be difficult.
 ```{r}
 fuel_sub_raw <- read_csv("Data Raw/fossil-fuel-subsidies-gdp.csv") 
 
