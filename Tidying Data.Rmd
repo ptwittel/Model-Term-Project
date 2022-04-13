@@ -146,9 +146,8 @@ tab7 <- tab6 %>%
 *Note: South Sudan and Sudan were one country until they split in 2011. Issue because data is 2010. Possibly take out the South Sudan row
 *Not sure what to do about west bank and west bank and gaza
 
-<<<<<<< HEAD
+
 +I think we have legitimate reason to remove nations that were in political/social turmoil at or around that time. We don't have a means of accounting for the effect of plastic waste in the mist of a conflict. We would have to look at historical data to account for that effect which would be out of the scope of this report. 
-=======
 
 ```{r}
 # NA EDA: Number of observations: 244
@@ -162,10 +161,6 @@ sum(is.na(tab7$`Mismanaged waste (% global total)`))        #Number of NAs: 58; 
 sum(is.na(tab7$`Share of plastic inadequately managed`))    #Number of NAs: 58; proportion missing: 0.2377049
 sum(is.na(tab7$gdp_per_capita))                             #Number of NAs: 48; proportion missing: 0.1967213
 ```
-
-
-
->>>>>>> bc1fec533198817c802a8a27fc44e6dc5ef41d98
 
 Fuel Subsidies  
 
