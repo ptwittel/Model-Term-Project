@@ -13,6 +13,7 @@ library(rvest)
 
 
 *states vs countries. We need to define what a country is,
+*use entity instead of country
 
 ```{r}
 waste_total <- read_csv("Data Raw/plastic-waste-generation-total.csv")
@@ -33,16 +34,19 @@ waste_inadequate_manage <-  waste_inadequate_manage %>%
 *Plastic data from Our World in Data
 
 ```{r}
+population_ <- read_csv("Data Raw/export.csv")
 pop <- read_csv("Data Raw/export.csv")
 pop <- pop %>% 
-        select(c("Country/Area Name", "Population", "Annual Growth Rate %", "Area (sq km)", "Density (per sq km)"))
+        select(c("Country/Area Name", "Population", "Annual Growth Rate %", "Area (sq km)", "Density (per sq km)", "Total Fertility Rate", "Life Expectancy at Birth", "Under-5 Mortality Rate"))
 ```
 
 Note: A lot of the N/a's in the wiki webpage are smaller Islands nations/ territories. I would be a little uncomfortable with imputing this data since it is Informed Missing. I found that we could find some of those missing values
 
 *changed the population since Wikipedia is not a reliable source. Data from Census Bureau
 
+bahamas
 
+bahamas, the
 
 ```{r}
 country_gdp <- read_csv("Data Raw/Country-GPD-per-capita.csv")
@@ -62,20 +66,6 @@ Source: World Economic Outlook (October 2021)" https://www.imf.org/external/data
 
 
 ```{r}
-# This might be a pain to clean up since the data includes a lot of regions but we are concentrating on individual countries.
-#gdp_country <- read_csv("Data Raw/World Bank GDP data/World bank gdp.csv") 
-
-#gdp_country <- gdp_country %>% 
-#  rename("Entity" = `Country Name`,
-#         "GPD (in USD 2015)" = `2010`,
-#         "Code" = `Country Code`) %>% 
-#  select(Entity, `GPD (in USD 2015)`)
-
-
-## Alternatively, we can calculate GDP using population and gdp_per capita
-```
-
-```{r}
 tab1 <- full_join(waste_total, pop, by = c("Entity" = "Country/Area Name"))
 tab2 <- full_join(tab1, waste_per_cap, by = c("Entity"))
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = c("Entity"))
@@ -86,7 +76,7 @@ tab5 <- full_join(tab4, gdp_per_cap, by = c("Entity"))
 
 ```{r}
 #write_csv(tab5, "Data Clean/master_table.csv")
-write_csv(tab5, "Data Clean/data_1.csv")
+#write_csv(tab5, "Data Clean/data_1.csv")
 ```
 
 *need to fix: some countries are spelt differently in different sources leading to duplicate rows that have NAs.
@@ -146,39 +136,21 @@ sum(is.na(tab7$Population))                                 #Number of NAs: 17; 
 sum(is.na(tab7$`Annual Growth Rate %`))                     #Number of NAs: 18; proportion missing: 0.07377049 #US missing 
 sum(is.na(tab7$`Area (sq km)`))                             #Number of NAs: 17; proportion missing: 0.06967213
 sum(is.na(tab7$`Density (per sq km)`))                      #Number of NAs: 17; proportion missing: 0.06967213
+sum(is.na(tab7$`Total Fertility Rate`))                     #Number of NAs: 18; proportion missing: 0.07377049
+sum(is.na(tab7$`Life Expectancy at Birth`))                 #Number of NAs: 18; proportion missing: 0.07377049
+sum(is.na(tab7$`Under-5 Mortality Rate`))                   #Number of NAs: 18; proportion missing: 0.07377049
 sum(is.na(tab7$`Per capita plastic waste (kg/person/day)`)) #Number of NAs: 58; proportion missing: 0.2377049
 sum(is.na(tab7$`Mismanaged waste (% global total)`))        #Number of NAs: 58; proportion missing: 0.2377049
 sum(is.na(tab7$`Share of plastic inadequately managed`))    #Number of NAs: 58; proportion missing: 0.2377049
 sum(is.na(tab7$gdp_per_capita))                             #Number of NAs: 48; proportion missing: 0.1967213
 ```
 
-
-
-
-Fuel Subsidies  
-
-*I am still not sure if I am sold on using 2015 data since the rest of our data is 2010. What happens if we have countries that actually didn't have subsidies available in 2010? It would not have any effect on the plastic waste generated 
 ```{r}
-fuel_sub_raw <- read_csv("Data Raw/fossil-fuel-subsidies-gdp.csv") 
-
-fuel_sub <- fuel_sub_raw %>% 
-  mutate('Fossil-Fuel subsities as proportion of total GDP' = fuel_sub_raw$`12.c.1 - Fossil-fuel subsidies (consumption and production) as a proportion of total GDP (%) - ER_FFS_CMPT_GDP`) %>% 
-  filter(Year == 2015) %>% 
-  filter(!is.na(Code)) %>% 
-  filter(Entity != c("World")) %>% 
-  select(Entity, `Fossil-Fuel subsities as proportion of total GDP`)
-
-
-#fuel_sub_codes <- fuel_sub_raw%>% select(Entity, Code, Year) %>% filter(Year == 2015) %>% select(!Year)
-
-tab7 <- left_join(tab5, fuel_sub)
-#tab8 <- left_join(tab7, fuel_sub_codes, by = c("Entity", "Code" = "Code"))
-
-write_csv(tab7, "Data Clean/master_Table_Fuel.csv")
-
+# Remove Code and Year
+tab8 <- select(tab7, -c("Code", "Year"))
 ```
 
 
-
-
-
+```{r}
+write_csv(tab8, "Data Clean/plastic_1.csv")
+```

@@ -1,0 +1,59 @@
+---
+title: "Imputation and EDA"
+author: "Ifechi Umeh"
+date: "4/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(naniar)
+library(mice)
+library(ranger)
+```
+
+
+```{r}
+data <- read_csv("Data Clean/plastic_1.csv")
+
+data <- data %>% replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
+sum(is.na(data$gdp_per_capita))    #Number of NAs: 50; proportion missing: 0.204918
+
+data$gdp_per_capita <- as.numeric(data$gdp_per_capita)
+
+data <- select(data, -c("Entity"))
+
+names(data) <- c("waste_gen", "population", "growth_rate", "area", "density", "fert_rate", "life_exp", "mort_rate", "per_cap_waste", "misman_waste", "share_misman", "per_cap_gdp")
+```
+
+
+```{r}
+summary(data)
+
+md.pattern(data) #visualizing missing values
+```
+
+
+```{r}
+imputed_data <- mice(data, 
+                     m = 31,          # m selected using max(5, 100p) where p=0.3114754 (highest prop. of NAs)  
+                     method = 'rf',   # uses ranger package
+                     seed = 79069084) # seed selected using sample(1:999999999, size = 1)
+```
+Error from using "pmm" method for imputation: "Error in solve.default(xtx + diag(pen)) : system is computationally singular: reciprocal condition number = 6.10832e-20"
+
+```{r}
+table_10 <- complete(imputed_data, 10)    # sample(1:31, size=1)
+summary(table_10)
+```
+
+
+
+```{r}
+# correlation matrix
+cor(data[,unlist(lapply(data, is.numeric))])
+```
+
+
