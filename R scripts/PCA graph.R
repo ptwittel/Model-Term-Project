@@ -19,6 +19,21 @@ ggplot(pca.data, aes(x = X, y = Y, color = Z)) +
   ylab("PC - 2") +
   title(main = "Principal Component Analysis")
 
+# These are the nations that have the greatest projected growth in population
+ggplot(pca.data %>% filter(Z >0.75), aes(x = X, y = Y, color = Z)) +
+  geom_point() +
+  ggrepel::geom_text_repel( aes(label = Entity)) +
+  xlab("PC - 1") +
+  ylab("PC - 2") +
+  title(main = "Principal Component Analysis, Z > 0.75")
+
+# Shrieking the scope of PC-2
+ggplot(pca.data %>% filter(Y > -5), aes(x = X, y = Y, color = Z)) +
+  geom_point() +
+  ggrepel::geom_text_repel( aes(label = Entity)) +
+  xlab("PC - 1") +
+  ylab("PC - 2") +
+  title(main = "Principal Component Analysis")
 
 
 # with just three principal components we can explain 70.1 of the variance
@@ -34,3 +49,6 @@ abs(df_pca$rotation[,2]) %>%
 # PC-3 uses variables that relate to the growth and demographics
 abs(df_pca$rotation[,3]) %>% 
   sort(., decreasing = TRUE)
+
+
+
