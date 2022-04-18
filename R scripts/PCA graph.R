@@ -19,6 +19,14 @@ ggplot(pca.data, aes(x = X, y = Y, color = Z)) +
   ylab("PC - 2") +
   title(main = "Principal Component Analysis")
 
+ggplot(pca.data, aes(x = X, y = Z, color = Y)) +
+  geom_point() +
+  ggrepel::geom_text_repel( aes(label = Entity)) +
+  xlab("PC - 1") +
+  ylab("PC - 3") +
+  title(main = "Principal Component Analysis")
+
+
 # These are the nations that have the greatest projected growth in population
 ggplot(pca.data %>% filter(Z >0.75), aes(x = X, y = Y, color = Z)) +
   geom_point() +
