@@ -23,11 +23,14 @@ ggplot(pca.data, aes(x = X, y = Y, color = Z)) +
 
 # with just three principal components we can explain 70.1 of the variance
 
+# PC-1 uses variabales that are related to the Social variables (i.e., Fertilty, GPD per cap, etc)
 abs(df_pca$rotation[,1]) %>% 
   sort(., decreasing = TRUE)
 
+# PC-2 uses variables that are related to the waste and waste management
 abs(df_pca$rotation[,2]) %>% 
   sort(., decreasing = TRUE)
 
+# PC-3 uses variables that relate to the growth and demographics
 abs(df_pca$rotation[,3]) %>% 
   sort(., decreasing = TRUE)
