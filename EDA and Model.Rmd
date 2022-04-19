@@ -1,0 +1,160 @@
+---
+title: "EDA and Modeling"
+author: "Ifechi Umeh"
+date: "4/17/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(caret)
+library(randomForest)
+library(ggplot2)
+library(rvest)
+library(naniar)
+library(mice)
+library(ranger)
+library(leaps)
+set.seed(79069084)
+```
+
+
+```{r}
+table <- read_csv("Data Clean/imputedtable_10.csv")
+summary(table)
+str(table)
+```
+
+
+**Need to normalize data by rescaling
+
+```{r}
+ggplot(table, aes(x=population, y=waste_gen)) +
+  geom_point() 
+```
+
+```{r}
+ggplot(table, aes(x=growth_rate, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=area, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=density, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=fert_rate, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=life_exp, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=mort_rate, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=per_cap_waste, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=misman_waste, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=share_misman, y=waste_gen)) +
+  geom_point()
+```
+
+```{r}
+ggplot(table, aes(x=area, y=per_cap_gdp)) +
+  geom_point()
+```
+
+**Need to normalize data by rescaling
+
+
+```{r}
+models <- regsubsets(waste_gen~., data = table, nvmax=12)
+summary(models)
+```
+
+
+```{r}
+# rescaling the data since variables are on different scales
+waste_gen <- scale(table$waste_gen)
+population <- scale(table$population)
+growth_rate <- scale(table$growth_rate)
+area <- scale(table$area)
+density <- scale(table$density)
+fert_rate <- scale(table$fert_rate)
+life_exp <- scale(table$life_exp)
+mort_rate <- scale(table$mort_rate)
+per_cap_waste <- scale(table$per_cap_waste)
+misman_waste <- scale(table$misman_waste)
+share_misman <- scale(table$share_misman)
+per_cap_gdp <- scale(table$per_cap_gdp)
+
+
+standard_table <- tibble(waste_gen, population, growth_rate, area, density, fert_rate, life_exp, mort_rate, per_cap_waste, misman_waste, share_misman, per_cap_gdp)
+```
+
+```{r}
+fits <- regsubsets(waste_gen~., data = standard_table, nvmax=11)
+summary(fits)
+```
+
+-----------------------------------------
+Random Forest
+
+```{r}
+# add index/id variable
+table$index <- 1:nrow(table)
+```
+
+```{r}
+mtry <- tuneRF(table[-1],table$waste_gen, ntreeTry=500,
+               stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
+best.m <- mtry[mtry[, 2] == min(mtry[, 2]), 1]
+print(mtry)
+print(best.m)
+```
+
+
+
+```{r}
+mtry <- tuneRF(standard_table[-1],standard_table$waste_gen, ntreeTry=500,
+               stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
+best.m <- mtry[mtry[, 2] == min(mtry[, 2]), 1]
+print(mtry)
+print(best.m)
+```
+
+
+
+```{r}
+rf <-randomForest(waste_gen~.,data=table, mtry=4, importance=TRUE,ntree=500)  #best mtry=4
+print(rf)
+```
+
+
+```{r}
+importance(rf)
+varImpPlot(rf)
+```
+
+
+
