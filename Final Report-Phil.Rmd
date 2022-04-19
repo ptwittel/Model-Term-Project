@@ -55,9 +55,39 @@ read_csv("Data Clean/NA_table.csv", show_col_types = FALSE)
 ## Results
 
 ### Principal Component Analysis
-|       Principal Component analysis (or PCA), is unsupervised model that finds the most impact variables to explain the variance. Since this an unsupervised method the analysis is more subjective rather than precise, however this give good insight into the various important variable that are connected. The first PC is most directly related to the social variables such as Fertility, GDP per capita, life expectancy, meaning that most of the variation that exist between Entities is the quality of the life. PC-1 reflects the real world, as nations that exist in the far negative values are Niger, Afghanistan and South Sudan, while on the other extreme is Luxembourg, Hong Kong and Monaco, famously rich and prosperous entities in 2010. Note: PC-1 axis does not exclusively relate to quality of life, so this is not an appropriate ranking of quality of life between entities. 
+|       Principal Component analysis (or PCA), is unsupervised model that finds the most impact variables to explain the variance. Since this an unsupervised method the analysis is more subjective rather than precise, however this give good insight into the various important variable that are connected. Each PC will capture some of the variance of the data but not all, thus it is important to evaluate the number of PC required to explain the majority of the variance in the data. The fewest number of PC required to capture the majority of variance will give us the most clear and impact analysis. Referring to *FIGURE NUMBER*, 70.1% of the variance is captured using only 3 PC.
 
-|       PC-2, is compose of variables that are more related to the waste and waste management 
+```{r, message= FALSE}
+
+df <- suppressMessages(read_csv("Data Clean/MT_imp_cart.csv", ) )
+
+df_pca <- prcomp(df[,2:length(df)], center = TRUE, scale. = TRUE)
+
+pca.data <- data.frame(Entity = df$Entity,
+                       X = df_pca$x[,1],
+                       Y = df_pca$x[,2],
+                       Z = df_pca$x[,3])
+
+barplot(round(df_pca$sdev^2/sum(df_pca$sdev^2) * 100, 1),
+        main =  "Scree Plot", xlab = "Principal Component", ylab = "Percent Variation")
+
+```
+
+|       The decomposed variables of the first PC are most directly related to the social variables such as Fertility, GDP per capita, life expectancy, meaning that most of the variation that exist between Entities is the quality of the life. Referring to *FIGURE NUMBER* PC-1 reflects the real world, as nations that exist in the far negative values are Niger, Afghanistan and South Sudan, while on the other extreme is Luxembourg, Hong Kong and Monaco, famously rich and prosperous entities in 2010. Note: PC-1 axis does not exclusively relate to quality of life, so this is not an appropriate ranking of quality of life between entities.
+
+```{r, warning= FALSE}
+ggplot(pca.data, aes(x = X, y = Z, color = Y)) +
+  geom_point() +
+  ggrepel::geom_text_repel( aes(label = Entity)) +
+  xlab("PC - 1") +
+  ylab("PC - 3")
+```
+
+|       PC-2, is compose of variables that are more related to the waste and waste management. *FIGURE NUMBER* also reflects this connection, as the largest wasters are the biggest nations by total tonnage of waste and largest populations.
+
+|       PC-3 is composed mostly of demographics and growth factors. these nations are the nations that are due to increase in the number of people and the increase of gdp.
+
+|       The factors that are most relevant in the plastic waste is not necessarily entity's quality of life or national growth demographically or economically, but rather plastic waste is mostly orthogonal to those important metrics for all entities. 
 
 
 ## Future Works
