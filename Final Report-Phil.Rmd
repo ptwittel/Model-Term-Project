@@ -54,7 +54,11 @@ read_csv("Data Clean/NA_table.csv", show_col_types = FALSE)
 
 ## Results
 
-| 
+### Principal Component Analysis
+|       Principal Component analysis (or PCA), is unsupervised model that finds the most impact variables to explain the variance. Since this an unsupervised method the analysis is more subjective rather than precise, however this give good insight into the various important variable that are connected. The first PC is most directly related to the social variables such as Fertility, GDP per capita, life expectancy, meaning that most of the variation that exist between Entities is the quality of the life. PC-1 reflects the real world, as nations that exist in the far negative values are Niger, Afghanistan and South Sudan, while on the other extreme is Luxembourg, Hong Kong and Monaco, famously rich and prosperous entities in 2010. Note: PC-1 axis does not exclusively relate to quality of life, so this is not an appropriate ranking of quality of life between entities. 
+
+|       PC-2, is compose of variables that are more related to the waste and waste management 
+
 
 ## Future Works
 
