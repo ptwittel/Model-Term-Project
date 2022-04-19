@@ -1,10 +1,13 @@
 factor,sum_na,prop
-"Plastic waste generation (tonnes, total)",76,0.3114754098360656
-Population,17,0.06967213114754098
-Annual Growth Rate %,18,0.07377049180327869
-Area (sq km),17,0.06967213114754098
+Population,76,0.3114754098360656
+Annual Growth Rate %,17,0.06967213114754098
+Area (sq km),18,0.07377049180327869
 Density (per sq km),17,0.06967213114754098
-Per capita plastic waste (kg/person/day),58,0.23770491803278687
+Total Fertility Rate,17,0.06967213114754098
+Life Expectancy at Birth,18,0.07377049180327869
+Under-5 Mortality Rate,18,0.07377049180327869
+Per capita plastic waste (kg/person/day),18,0.07377049180327869
 Mismanaged waste (% global total),58,0.23770491803278687
 Share of plastic inadequately managed,58,0.23770491803278687
-gdp_per_capita,48,0.19672131147540983
+gdp_per_capita,58,0.23770491803278687
+NA,48,0.19672131147540983

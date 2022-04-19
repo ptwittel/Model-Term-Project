@@ -18,7 +18,7 @@ library(ranger)
 ```{r}
 data <- read_csv("Data Clean/plastic_1.csv")
 
-data <- data %>% replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
+data <- data %>% naniar::replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
 sum(is.na(data$gdp_per_capita))    #Number of NAs: 50; proportion missing: 0.204918
 
 data$gdp_per_capita <- as.numeric(data$gdp_per_capita)
