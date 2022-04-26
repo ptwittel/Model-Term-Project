@@ -30,7 +30,11 @@ str(table)
 **Need to normalize data by rescaling
 
 ```{r}
+<<<<<<< HEAD
 ggplot(table, aes(x=log(population), y=log(waste_gen))) +
+=======
+ggplot(table, aes(x=population, y=waste_gen)) +
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
   geom_point() 
 ```
 
@@ -74,12 +78,15 @@ ggplot(table, aes(x=misman_waste, y=waste_gen)) +
   geom_point()
 ```
 
+<<<<<<< HEAD
 
 ------------------------------------
 *xlim and ylim to zoom into graph
 *transformation of variables
 -----------------------------------
 
+=======
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 ```{r}
 ggplot(table, aes(x=share_misman, y=waste_gen)) +
   geom_point()
@@ -142,7 +149,10 @@ print(best.m)
 
 
 ```{r}
+<<<<<<< HEAD
 # finding the best mtry
+=======
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 mtry <- tuneRF(standard_table[-1],standard_table$waste_gen, ntreeTry=500,
                stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE)
 best.m <- mtry[mtry[, 2] == min(mtry[, 2]), 1]
@@ -163,5 +173,10 @@ importance(rf)
 varImpPlot(rf)
 ```
 
+<<<<<<< HEAD
 *adding GDP variable
 *difference between statistical significance and practical significance
+=======
+
+
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6

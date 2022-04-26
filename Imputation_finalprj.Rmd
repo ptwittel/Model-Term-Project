@@ -2,9 +2,13 @@
 title: "Imputation and EDA"
 author: "Ifechi Umeh"
 date: "4/11/2022"
+<<<<<<< HEAD
 output:
   word_document: default
   html_document: default
+=======
+output: html_document
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 ---
 
 ```{r setup, include=FALSE}
@@ -13,6 +17,7 @@ library(tidyverse)
 library(rvest)
 library(naniar)
 library(mice)
+<<<<<<< HEAD
 library(miceadds)
 library(ranger)
 set.seed(79069084)
@@ -23,10 +28,21 @@ set.seed(79069084)
 data <- read_csv("Data Clean/plastic_1.csv")
 
 data <- data %>% replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
+=======
+library(ranger)
+```
+
+
+```{r}
+data <- read_csv("Data Clean/plastic_1.csv")
+
+data <- data %>% naniar::replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 sum(is.na(data$gdp_per_capita))    #Number of NAs: 50; proportion missing: 0.204918
 
 data$gdp_per_capita <- as.numeric(data$gdp_per_capita)
 
+<<<<<<< HEAD
 # data <- select(data, -c("Entity"))
 
 names(data) <- c("entity", "waste_gen", "population", "growth_rate", "area", "density", "fert_rate", "life_exp", "mort_rate", "per_cap_waste", "misman_waste", "share_misman", "per_cap_gdp")
@@ -44,6 +60,22 @@ vis_miss(data, cluster = F, sort_miss = T, show_perc = T,
 
 
 ```{r, eval=FALSE}
+=======
+data <- select(data, -c("Entity"))
+
+names(data) <- c("waste_gen", "population", "growth_rate", "area", "density", "fert_rate", "life_exp", "mort_rate", "per_cap_waste", "misman_waste", "share_misman", "per_cap_gdp")
+```
+
+
+```{r}
+summary(data)
+
+md.pattern(data) #visualizing missing values
+```
+
+
+```{r}
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 imputed_data <- mice(data, 
                      m = 31,          # m selected using max(5, 100p) where p=0.3114754 (highest prop. of NAs)  
                      method = 'rf',   # uses ranger package
@@ -51,6 +83,7 @@ imputed_data <- mice(data,
 ```
 Error from using "pmm" method for imputation: "Error in solve.default(xtx + diag(pen)) : system is computationally singular: reciprocal condition number = 6.10832e-20"
 
+<<<<<<< HEAD
 ```{r, eval=FALSE}
 table_10 <- complete(imputed_data, 10)    # sample(1:31, size=1)
 #summary(table_10) #no  more NAs
@@ -150,3 +183,18 @@ summary(fit2_combine)
 
 
 
+=======
+```{r}
+table_10 <- complete(imputed_data, 10)    # sample(1:31, size=1)
+summary(table_10)
+```
+
+
+
+```{r}
+# correlation matrix
+cor(data[,unlist(lapply(data, is.numeric))])
+```
+
+
+>>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
