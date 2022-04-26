@@ -1,0 +1,152 @@
+---
+title: "Imputation and EDA"
+author: "Ifechi Umeh"
+date: "4/11/2022"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(naniar)
+library(mice)
+library(miceadds)
+library(ranger)
+set.seed(79069084)
+```
+
+
+```{r, eval=FALSE}
+data <- read_csv("Data Clean/plastic_1.csv")
+
+data <- data %>% replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
+sum(is.na(data$gdp_per_capita))    #Number of NAs: 50; proportion missing: 0.204918
+
+data$gdp_per_capita <- as.numeric(data$gdp_per_capita)
+
+# data <- select(data, -c("Entity"))
+
+names(data) <- c("entity", "waste_gen", "population", "growth_rate", "area", "density", "fert_rate", "life_exp", "mort_rate", "per_cap_waste", "misman_waste", "share_misman", "per_cap_gdp")
+```
+
+
+```{r, eval=FALSE}
+summary(data)
+
+md.pattern(data) #visualizing missing values
+
+vis_miss(data, cluster = F, sort_miss = T, show_perc = T,
+  show_perc_col = F, large_data_size = 9e+05)
+``` 
+
+
+```{r, eval=FALSE}
+imputed_data <- mice(data, 
+                     m = 31,          # m selected using max(5, 100p) where p=0.3114754 (highest prop. of NAs)  
+                     method = 'rf',   # uses ranger package
+                     seed = 79069084) # seed selected using sample(1:999999999, size = 1)
+```
+Error from using "pmm" method for imputation: "Error in solve.default(xtx + diag(pen)) : system is computationally singular: reciprocal condition number = 6.10832e-20"
+
+```{r, eval=FALSE}
+table_10 <- complete(imputed_data, 10)    # sample(1:31, size=1)
+#summary(table_10) #no  more NAs
+
+#write_csv(table_10, "Data Clean/imputedtable_10.csv")
+```
+
+
+randomly selected table for visualizations
+
+```{r}
+# randomly selected table for visualizations
+ggplot(data=table_10, aes(x=log(population), y=log(waste_gen))) +
+  geom_point()
+```
+
+```{r}
+ggplot(data=table_10, aes(x=log(area), y=log(waste_gen))) +
+  geom_point()
+```
+
+```{r}
+ggplot(data=table_10, aes(x=log(misman_waste), y=log(waste_gen))) +
+  geom_point()
+```
+
+```{r}
+ggplot(data=table_10, aes(x=log(per_cap_waste), y=log(waste_gen))) +
+  geom_point()
+```
+
+```{r}
+ggplot(data=table_10, aes(x=log(share_misman), y=log(waste_gen))) +
+  geom_point()
+```
+
+```{r}
+ggplot(data=table_10, aes(x=log(per_cap_gdp), y=log(waste_gen))) +
+  geom_point()
+```
+
+
+Population, area, misman_waste, per_cap_waste, share_misman
+
+```{r, eval=FALSE}
+# correlation matrix
+correlations <- miceadds::micombine.cor(mi.res=imputed_data, variables = c(2:12))
+
+old_school<-format(correlations$p, scientific=FALSE)
+correlations["p_value"] <- NA; correlations$p_value <- old_school; 
+correlations
+```
+
+population: area and misman_waste
+
+
+```{r}
+scope <- list(upper = ~ population + growth_rate + area + density + fert_rate + life_exp + mort_rate + per_cap_waste + misman_waste + share_misman + per_cap_gdp,
+              lower = ~1)
+expr <- expression(f1 <- lm(waste_gen ~ 1),
+                   f2 <- step(f1, scope = scope))
+fit <- with(imputed_data, expr)
+```
+
+```{r}
+formulas <- lapply(fit$analyses, formula)
+terms <- lapply(formulas, terms)
+votes <- unlist(lapply(terms, labels))
+table(votes)
+```
+
+
+
+
+
+```{r}
+fit_1 <- with(data = imputed_data, expr = lm(waste_gen ~ area + misman_waste + per_cap_waste + population + share_misman))
+
+fit_combine <- pool(fit_1)
+summary(fit_combine)
+```
+
+```{r}
+fit_without <- with(imputed_data, lm(waste_gen ~ area + misman_waste + per_cap_waste + population))
+fit_with <- with(imputed_data, lm(waste_gen ~ area + misman_waste + per_cap_waste + population + share_misman))
+D1(fit_with, fit_without)
+```
+
+```{r}
+fit_2 <- with(data = imputed_data, expr = lm(waste_gen ~ area + misman_waste + per_cap_waste + population))
+
+fit2_combine <- pool(fit_2)
+summary(fit2_combine)
+```
+
+
+
+
+

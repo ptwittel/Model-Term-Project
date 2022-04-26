@@ -2,7 +2,9 @@
 title: "Gathering Data"
 author: "Ifechi Umeh"
 date: "3/28/2022"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +17,7 @@ library(rvest)
 *states vs countries. We need to define what a country is,
 *use entity instead of country
 
-```{r}
+```{r, eval=FALSE}
 waste_total <- read_csv("Data Raw/plastic-waste-generation-total.csv")
 
 waste_per_cap <- read_csv("Data Raw/plastic-waste-per-capita.csv")
@@ -33,7 +35,7 @@ waste_inadequate_manage <-  waste_inadequate_manage %>%
 
 *Plastic data from Our World in Data
 
-```{r}
+```{r, eval=FALSE}
 population_ <- read_csv("Data Raw/export.csv")
 pop <- read_csv("Data Raw/export.csv")
 pop <- pop %>% 
@@ -48,7 +50,7 @@ bahamas
 
 bahamas, the
 
-```{r}
+```{r, eval=FALSE}
 country_gdp <- read_csv("Data Raw/Country-GPD-per-capita.csv")
 
 country_gdp_capita <- country_gdp %>% transmute(Entity = `GDP per capita, current prices
@@ -65,7 +67,7 @@ gdp_per_cap <- country_gdp_capita[c(2:197),] #to ensure we have just the countri
 Source: World Economic Outlook (October 2021)" https://www.imf.org/external/datamapper/NGDPDPC@WEO/OEMDC/ADVEC/WEOWORLD 
 
 
-```{r}
+```{r, eval=FALSE}
 tab1 <- full_join(waste_total, pop, by = c("Entity" = "Country/Area Name"))
 tab2 <- full_join(tab1, waste_per_cap, by = c("Entity"))
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = c("Entity"))
@@ -74,7 +76,7 @@ tab5 <- full_join(tab4, gdp_per_cap, by = c("Entity"))
 #tab6 <- left_join(tab5, country_gdp_capita, by = "Entity") not sure what year is the USD in.
 ```
 
-```{r}
+```{r, eval=FALSE}
 #write_csv(tab5, "Data Clean/master_table.csv")
 #write_csv(tab5, "Data Clean/data_1.csv")
 ```
@@ -84,7 +86,7 @@ tab5 <- full_join(tab4, gdp_per_cap, by = c("Entity"))
 
 
 
-```{r}
+```{r, eval=FALSE}
 tab6 <- tab5
 # Tidying up Entity names
 tab6$Entity <- str_replace(tab6$Entity, ".*Bahamas.*", "Bahamas")
@@ -129,7 +131,7 @@ tab7 <- tab6 %>%
 *Not sure what to do about west bank and west bank and gaza
 
 
-```{r}
+```{r, eval=FALSE}
 # NA EDA: Number of observations: 244
 sum(is.na(tab7$`Plastic waste generation (tonnes, total)`)) #Number of NAs: 76; proportion missing: 0.3114754
 sum(is.na(tab7$Population))                                 #Number of NAs: 17; proportion missing: 0.06967213
@@ -145,12 +147,12 @@ sum(is.na(tab7$`Share of plastic inadequately managed`))    #Number of NAs: 58; 
 sum(is.na(tab7$gdp_per_capita))                             #Number of NAs: 48; proportion missing: 0.1967213
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Remove Code and Year
 tab8 <- select(tab7, -c("Code", "Year"))
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 write_csv(tab8, "Data Clean/plastic_1.csv")
 ```
