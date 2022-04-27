@@ -35,11 +35,7 @@ waste_inadequate_manage <-  waste_inadequate_manage %>%
 
 *Plastic data from Our World in Data
 
-<<<<<<< HEAD
 ```{r, eval=FALSE}
-=======
-```{r}
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 population_ <- read_csv("Data Raw/export.csv")
 pop <- read_csv("Data Raw/export.csv")
 pop <- pop %>% 
@@ -71,11 +67,7 @@ gdp_per_cap <- country_gdp_capita[c(2:197),] #to ensure we have just the countri
 Source: World Economic Outlook (October 2021)" https://www.imf.org/external/datamapper/NGDPDPC@WEO/OEMDC/ADVEC/WEOWORLD 
 
 
-<<<<<<< HEAD
 ```{r, eval=FALSE}
-=======
-```{r}
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 tab1 <- full_join(waste_total, pop, by = c("Entity" = "Country/Area Name"))
 tab2 <- full_join(tab1, waste_per_cap, by = c("Entity"))
 tab3 <- full_join(tab2, waste_totgbl_mismanage, by = c("Entity"))
@@ -155,20 +147,14 @@ sum(is.na(tab7$`Share of plastic inadequately managed`))    #Number of NAs: 58; 
 sum(is.na(tab7$gdp_per_capita))                             #Number of NAs: 48; proportion missing: 0.1967213
 ```
 
-<<<<<<< HEAD
+
 ```{r, eval=FALSE}
-=======
-```{r}
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 # Remove Code and Year
 tab8 <- select(tab7, -c("Code", "Year"))
 ```
 
 
-<<<<<<< HEAD
+
 ```{r, eval=FALSE}
-=======
-```{r}
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 write_csv(tab8, "Data Clean/plastic_1.csv")
 ```

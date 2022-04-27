@@ -2,13 +2,9 @@
 title: "Imputation and EDA"
 author: "Ifechi Umeh"
 date: "4/11/2022"
-<<<<<<< HEAD
 output:
   word_document: default
   html_document: default
-=======
-output: html_document
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 ---
 
 ```{r setup, include=FALSE}
@@ -17,37 +13,29 @@ library(tidyverse)
 library(rvest)
 library(naniar)
 library(mice)
-<<<<<<< HEAD
 library(miceadds)
 library(ranger)
 set.seed(79069084)
 ```
 
 
-```{r, eval=FALSE}
-data <- read_csv("Data Clean/plastic_1.csv")
-
-data <- data %>% replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
-=======
-library(ranger)
-```
-
+# Parsing Data 
 
 ```{r}
 data <- read_csv("Data Clean/plastic_1.csv")
 
 data <- data %>% naniar::replace_with_na(replace = list(gdp_per_capita = "no data")) # some values labelled "no data"
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 sum(is.na(data$gdp_per_capita))    #Number of NAs: 50; proportion missing: 0.204918
 
 data$gdp_per_capita <- as.numeric(data$gdp_per_capita)
 
-<<<<<<< HEAD
 # data <- select(data, -c("Entity"))
 
 names(data) <- c("entity", "waste_gen", "population", "growth_rate", "area", "density", "fert_rate", "life_exp", "mort_rate", "per_cap_waste", "misman_waste", "share_misman", "per_cap_gdp")
 ```
 
+
+# Visualizing Missing Data 
 
 ```{r, eval=FALSE}
 summary(data)
@@ -59,23 +47,10 @@ vis_miss(data, cluster = F, sort_miss = T, show_perc = T,
 ``` 
 
 
-```{r, eval=FALSE}
-=======
-data <- select(data, -c("Entity"))
 
-names(data) <- c("waste_gen", "population", "growth_rate", "area", "density", "fert_rate", "life_exp", "mort_rate", "per_cap_waste", "misman_waste", "share_misman", "per_cap_gdp")
-```
-
+# Imputing Data
 
 ```{r}
-summary(data)
-
-md.pattern(data) #visualizing missing values
-```
-
-
-```{r}
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
 imputed_data <- mice(data, 
                      m = 31,          # m selected using max(5, 100p) where p=0.3114754 (highest prop. of NAs)  
                      method = 'rf',   # uses ranger package
@@ -83,16 +58,12 @@ imputed_data <- mice(data,
 ```
 Error from using "pmm" method for imputation: "Error in solve.default(xtx + diag(pen)) : system is computationally singular: reciprocal condition number = 6.10832e-20"
 
-<<<<<<< HEAD
 ```{r, eval=FALSE}
 table_10 <- complete(imputed_data, 10)    # sample(1:31, size=1)
-#summary(table_10) #no  more NAs
-
-#write_csv(table_10, "Data Clean/imputedtable_10.csv")
 ```
 
 
-randomly selected table for visualizations
+# Randomly selected table for visualizations
 
 ```{r}
 # randomly selected table for visualizations
@@ -128,6 +99,8 @@ ggplot(data=table_10, aes(x=log(per_cap_gdp), y=log(waste_gen))) +
 
 Population, area, misman_waste, per_cap_waste, share_misman
 
+# Correlation
+
 ```{r, eval=FALSE}
 # correlation matrix
 correlations <- miceadds::micombine.cor(mi.res=imputed_data, variables = c(2:12))
@@ -139,12 +112,13 @@ correlations
 
 population: area and misman_waste
 
+# Stepwise Selection
 
 ```{r}
-scope <- list(upper = ~ population + growth_rate + area + density + fert_rate + life_exp + mort_rate + per_cap_waste + misman_waste + share_misman + per_cap_gdp,
+scope <- list(upper = ~ growth_rate + area + density + fert_rate + life_exp + mort_rate + per_cap_waste + misman_waste + share_misman + per_cap_gdp,
               lower = ~1)
 expr <- expression(f1 <- lm(waste_gen ~ 1),
-                   f2 <- step(f1, scope = scope))
+                   f2 <- step(f1, scope = scope, trace=0))
 fit <- with(imputed_data, expr)
 ```
 
@@ -155,25 +129,38 @@ votes <- unlist(lapply(terms, labels))
 table(votes)
 ```
 
+# Random Forest
+```{r}
+with(data = imputed_data, expr = randomForest(waste_gen~.,data=table, mtry=4, importance=TRUE,ntree=500))
+
+```
 
 
-
+# Fitting models
 
 ```{r}
-fit_1 <- with(data = imputed_data, expr = lm(waste_gen ~ area + misman_waste + per_cap_waste + population + share_misman))
+fit_1 <- with(data = imputed_data, expr = lm(waste_gen ~ area + misman_waste + per_cap_waste + share_misman))
 
 fit_combine <- pool(fit_1)
 summary(fit_combine)
 ```
 
 ```{r}
-fit_without <- with(imputed_data, lm(waste_gen ~ area + misman_waste + per_cap_waste + population))
-fit_with <- with(imputed_data, lm(waste_gen ~ area + misman_waste + per_cap_waste + population + share_misman))
+fit_without <- with(imputed_data, lm(waste_gen ~ area + misman_waste + per_cap_waste ))
+fit_with <- with(imputed_data, lm(waste_gen ~ area + misman_waste + per_cap_waste + share_misman))
 D1(fit_with, fit_without)
 ```
 
+
 ```{r}
-fit_2 <- with(data = imputed_data, expr = lm(waste_gen ~ area + misman_waste + per_cap_waste + population))
+fit_without2 <- with(imputed_data, lm(waste_gen ~ area + misman_waste))
+fit_with2 <- with(imputed_data, lm(waste_gen ~ area + misman_waste + per_cap_waste))
+D1(fit_with2, fit_without2)
+```
+
+
+```{r}
+fit_2 <- with(data = imputed_data, expr = lm(waste_gen ~ area + misman_waste + per_cap_waste))
 
 fit2_combine <- pool(fit_2)
 summary(fit2_combine)
@@ -183,18 +170,9 @@ summary(fit2_combine)
 
 
 
-=======
-```{r}
-table_10 <- complete(imputed_data, 10)    # sample(1:31, size=1)
-summary(table_10)
-```
 
 
 
-```{r}
-# correlation matrix
-cor(data[,unlist(lapply(data, is.numeric))])
-```
 
 
->>>>>>> 31b5a6386a4662ef9c7162cc51000080db1a80b6
+
